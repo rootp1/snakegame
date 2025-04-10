@@ -6,8 +6,8 @@ const box = 20;
 const backgroundImage = new Image();
 backgroundImage.src = 'image.png';
 
-
 let lastDirection = 'RIGHT';
+const scoreElement = document.getElementById('score');
 
 const opposites = {
   UP: 'DOWN',
@@ -24,13 +24,11 @@ document.addEventListener('keydown', e => {
   else if (e.key === 'ArrowLeft') newDirection = 'LEFT';
   else if (e.key === 'ArrowRight') newDirection = 'RIGHT';
 
-  
   if (
     newDirection &&
     newDirection !== lastDirection &&
     newDirection !== opposites[lastDirection]
   ) {
-    console.log('Direction sent:', newDirection);
     socket.emit('direction', newDirection);
     lastDirection = newDirection;
   }
@@ -39,16 +37,18 @@ document.addEventListener('keydown', e => {
 socket.on('gameState', ({ players, food }) => {
   ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
 
-  
   ctx.fillStyle = 'red';
   ctx.fillRect(food.x, food.y, box, box);
 
-  
   for (const id in players) {
     const player = players[id];
     ctx.fillStyle = player.color;
     for (const segment of player.snake) {
       ctx.fillRect(segment.x, segment.y, box, box);
+    }
+
+    if (id === socket.id) {
+      scoreElement.textContent = `Score: ${player.score}`;
     }
   }
 });
